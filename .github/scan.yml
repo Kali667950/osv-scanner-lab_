@@ -1,0 +1,34 @@
+name: OSV-Scanner Scheduled Scan
+
+on:
+push:
+    branches: [ "main" ] # This workflow runs on every push to the main branch
+  schedule:
+    - cron: '21 8 * * 1' # This also runs on a schedule (optional)
+
+permissions:
+  contents: read # Allow read access to the repo contents
+  security-events: write # Allow writing security events to the security tab
+
+jobs:
+scan:
+    name: osv-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run osv-scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |
+            --fail-on-vuln
+            --formt=sarif
+            -S=results.sarif
+            ./
+                                                                                                                        
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif
+        with:
+          sarif_file: results.sarif
+                                                                                                                                                        
